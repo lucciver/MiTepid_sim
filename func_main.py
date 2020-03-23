@@ -9,7 +9,7 @@ Created on Fri Mar 20 12:59:33 2020
 def main(country,
          policy_name,
          policy_definition,
-         dir_save_plots_main,
+         dir_save_plots_main='',
          t_end=500,
          x0_vec = [1e-3],):
     """
@@ -167,12 +167,29 @@ def main(country,
     sol_SIR_I = sol_SIR[:,:Ng]
     sol_SIR_R = sol_SIR[:,Ng:]
     with open(file_policy, 'a') as my_tex:
-         my_tex.write('\n \n \n ')
-         my_tex.write(str_policy_info())  # just to remove previous contents
+        my_tex.write('\n \n \n ')
+        my_tex.write(str_policy_info())  # just to remove previous contents
+    # calculate aggregate solutions
+    sol_agg_SIS = sol_aggregate(sol_SIS, dict_pop[country])
+    sol_agg_SIR_I = sol_aggregate(sol_SIR_I, dict_pop[country])
+    sol_agg_SIR_R = sol_aggregate(sol_SIR_R, dict_pop[country])
+
+    # save various solutions in a sictioanry to return to the main function
+    dict_out = {}
+    dict_out['sol_agg_SIR_R'] = sol_agg_SIR_R
+    dict_out['sol_agg_SIR_I'] = sol_agg_SIR_I
+    dict_out['sol_agg_SIS'] = sol_agg_SIS
+
+    dict_out['sol_SIR_R'] = sol_SIR_R
+    dict_out['sol_SIR_I'] = sol_SIR_I
+    dict_out['sol_SIS'] = sol_SIS
 
     #
-    plot_type = 1  # can be 1 -> all in one subplots, or 2 -> each age group in one subplot
-    if_plot = True
+    if not dir_save_plots_main:
+        if_plot = False  #  dir_save_plots_main=='' means don't plot
+    else:
+        plot_type = 1  # can be 1 -> all in one subplots, or 2 -> each age group in one subplot
+        if_plot = True
     if if_plot:
         # str_type = 'pt'+str(plot_type)+'_'
         ### SIS
@@ -213,7 +230,7 @@ def main(country,
                          'Uncontained',]
 
         filesave = Path(dir_save_plots, 'SIS_AGG_' + str_policy+'.png')
-        sol_agg_SIS = sol_aggregate(sol_SIS, dict_pop[country])
+
 
         str_max1 = "{:2.2f}".format((sol_agg_SIS_orig[-1,0])*100)+ '%'
         if if_uncontained:
@@ -223,7 +240,7 @@ def main(country,
             sol_agg_SIS_plot = np.concatenate((sol_agg_SIS, sol_agg_SIS_orig), axis=1)
             str_max2 = ", {:2.2f}".format((sol_agg_SIS[-1,0])*100)+ '%'
 
-        suptitle = '\nEventual Ratio of Total Infected: ' \
+        suptitle = '\nMaximum Ratio of Total Infected: ' \
             + str_max1 + str_max2
 
         bplot(t, sol_agg_SIS_plot, plot_type=1, filesave=filesave,
@@ -233,8 +250,6 @@ def main(country,
         # SIR
         filesave_I = Path(dir_save_plots, 'SIR_I_AGG_' + str_policy+'.png')
         filesave_R = Path(dir_save_plots, 'SIR_R_AGG_' + str_policy+'.png')
-        sol_agg_SIR_I = sol_aggregate(sol_SIR_I, dict_pop[country])
-        sol_agg_SIR_R = sol_aggregate(sol_SIR_R, dict_pop[country])
         str_max_I_1 = "{:2.2f}".format(np.max(sol_agg_SIR_I_orig)*100)+ '%'
         str_max_R_1 = "{:2.2f}".format(np.max(sol_agg_SIR_R_orig)*100)+ '%'
             # SIR I
@@ -245,10 +260,10 @@ def main(country,
             sol_agg_SIR_I_plot = np.concatenate((sol_agg_SIR_I,
                                              sol_agg_SIR_I_orig,), axis=1)
             str_max2 = ", {:2.2f}".format(np.max(sol_agg_SIR_I)*100)+ '%'
-        suptitle = '\nPeak of Infected Ratio in the population: ' + str_max_I_1 + str_max2
+        suptitle = '\nPeak/Maximum of Infected Ratio in the population: ' + str_max_I_1 + str_max2
         bplot(t, sol_agg_SIR_I_plot, plot_type=1, filesave=filesave_I,
               suptitle=suptitle, labels=my_labels_I, list_vl=list_t_switch,
-              all_policies=all_policies, ylabel='InfectivesRatio')
+              all_policies=all_policies, ylabel='Infective Ratio')
 
 
         if if_uncontained:
@@ -258,8 +273,10 @@ def main(country,
             sol_agg_SIR_R_plot = np.concatenate((sol_agg_SIR_R,
                                                  sol_agg_SIR_R_orig), axis=1)
             str_max2 = ", {:2.2f}".format(np.max(sol_agg_SIR_R)*100)+ '%'
-        suptitle = '\nEventual Ratio of Recovered in the population: ' + str_max_R_1 + str_max2
+        suptitle = '\nMaximum Ratio of Recovered in the population: ' + str_max_R_1 + str_max2
         bplot(t, sol_agg_SIR_R_plot, plot_type=1, filesave=filesave_R,
               suptitle=suptitle, labels=my_labels_R, list_vl=list_t_switch,
               all_policies=all_policies, ylabel='Recovered Ratio')
 
+
+    return dict_out
