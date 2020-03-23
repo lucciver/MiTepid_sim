@@ -11,7 +11,8 @@ def main(country,
          policy_definition,
          dir_save_plots_main='',
          t_end=500,
-         x0_vec = [1e-3],):
+         x0_vec = [1e-3],
+         xternal_inputs={},):
     """
     Simulate the epid model.
 
@@ -27,10 +28,18 @@ def main(country,
         a dictionary of {time: basic_policy} format.
     dir_save_plots_main : pathlib Path
         main folder to save plots. Then a subfolder in country/policyname is used to save files.
+    xternal_inputs : dict
+        dictionary of time/xternal_input. To model new infectives fro moutside the populations
+            example: incoming flights, etc.
+    t_end : float
+        end time of simulation, in days
+    x0_vec : list of floats
+        a list of size 1, Ng, or 2*Ng to specifiy initial conditions. Ng is number of groups.
 
     Returns
     -------
-    None.
+    dict_out : dictionary
+        a dicitonary of all stratified and aggregated solutions of SIS and SIR models.
 
     """
     # local imports
@@ -83,8 +92,7 @@ def main(country,
 
 
     #%%
-    if set(list(policy_definition.keys())) == set([0]) and \
-        set(list(policy_definition.values())) == set(['Uncontained']):
+    if policy_name == 'Uncontained':
         print('polciy is uncontained')
         if_uncontained = True
     else:
@@ -122,12 +130,13 @@ def main(country,
     # In the following example, population starts uncontained, and after 90 days
     # lockdown policy is imposed
     # list_t_switch = [0, 60, 90, 120, 150]
-    # all_policies = ['Lockdown',
+    # list_all_policies = ['Lockdown',
     #                 'Adults_self_isolate',
     #                 'Schools_closed',
     #                 'Elderly_stay_home',]
-    list_t_switch = list(policy_definition.keys())
-    all_policies = list(policy_definition.values())
+    from utils import sort_out_t_policy_x0
+    list_t1, list_t2, list_policies, list_x0, list_t_switch, list_all_policies = \
+        sort_out_t_policy_x0(policy_definition, xternal_inputs, t_end, x0_SIS)
 
     str_policy = policy_name  # used to make subfolder name
     dir_save_plots = Path(dir_save_plots_country, Path(str_policy))
@@ -137,23 +146,31 @@ def main(country,
         f.write('\n    time (day) --->  Policy')
         f.write('\n    ------------------------------------------')
 
-    for idx, t_switch1 in enumerate(list_t_switch):
-        policy = all_policies[idx]
+    for idx in np.arange(len(list_t1)):
+        t_switch1 = list_t1[idx]
+        t_switch2 =  list_t2[idx]
+        policy = list_policies[idx]
+        x0_xtrnal = list_x0[idx]
+        # policy = list_all_policies[idx]
         with open(file_policy, 'a') as my_tex:
             my_tex.write('\n %10.1f    --->  %s'%(t_switch1, policy))  # just to remove previous contents
 
         B_opt_SIS = get_Bopt(file_data_opt_SIS, country, policy)
         B_opt_SIR = get_Bopt(file_data_opt_SIR, country, policy)
 
-        try:
-            t_switch2 = list_t_switch[idx+1]
-        except IndexError:
-            t_switch2 = t_end + 1e-10
+        # try:
+        #     t_switch2 = list_t_switch[idx+1]
+        # except IndexError:
+        #     t_switch2 = t_end + 1e-10
 
         t_step = np.arange(t_switch1, t_switch2, step=0.1)
-
+        x0_SIS = x0_SIS + x0_xtrnal
+        x0_SIR = x0_SIR + np.concatenate((x0_xtrnal, np.zeros(Ng)))
+        # solve the ODE
         sol_SIS_step = odeint(SIS, x0_SIS, t_step, args=(B_opt_SIS, ALPHA))
         sol_SIR_step = odeint(SIR, x0_SIR, t_step, args=(B_opt_SIR, ALPHA))
+
+        # update x0
         x0_SIS = sol_SIS_step[-1]
         x0_SIR = sol_SIR_step[-1]
 
@@ -197,7 +214,7 @@ def main(country,
         suptitle = country + ' --- SIS'
         bplot(t, sol_SIS, plot_type=plot_type, filesave=filesave,
               labels=age_groups, suptitle='', list_vl=list_t_switch,
-              all_policies=all_policies, ylabel='Infective Ratio')
+              list_all_policies=list_all_policies, ylabel='Infective Ratio')
 
 
         ### SIR_I
@@ -205,20 +222,20 @@ def main(country,
         filesave = Path(dir_save_plots, 'SIR_I_groups_' + str_policy+'.png')
         bplot(t, sol_SIR_I, plot_type=plot_type, filesave=filesave,
               labels=age_groups, suptitle=suptitle, list_vl=list_t_switch,
-              all_policies=all_policies, ylabel='Infective Ratio')
+              list_all_policies=list_all_policies, ylabel='Infective Ratio')
 
         ### SIR_R
         suptitle = ''
         filesave = Path(dir_save_plots, 'SIR_R_groups_' + str_policy+'.png')
         bplot(t, sol_SIR_R, plot_type=plot_type, filesave=filesave,
               labels=age_groups, suptitle=suptitle, list_vl=list_t_switch,
-              all_policies=all_policies, ylabel='Recoverd Ratio')
+              list_all_policies=list_all_policies, ylabel='Recoverd Ratio')
 
         ### diff
         suptitle = ' Difference between solutions to SIS and SIR models'
         filesave = Path(dir_save_plots, 'diff_SIS_SIR_groups_' + str_policy+'.png')
         bplot(t, abs(sol_SIS-sol_SIR_I), plot_type=plot_type, filesave=filesave,
-              labels=age_groups, suptitle=suptitle, list_vl=list_t_switch, all_policies=all_policies)
+              labels=age_groups, suptitle=suptitle, list_vl=list_t_switch, list_all_policies=list_all_policies)
         ### Aggregate
         if if_uncontained:
             my_labels_I = ['Uncontained']
@@ -245,7 +262,7 @@ def main(country,
 
         bplot(t, sol_agg_SIS_plot, plot_type=1, filesave=filesave,
               suptitle=suptitle, labels=my_labels_I, list_vl=list_t_switch,
-              all_policies=all_policies, ylabel='Infective Ratio')
+              list_all_policies=list_all_policies, ylabel='Infective Ratio')
 
         # SIR
         filesave_I = Path(dir_save_plots, 'SIR_I_AGG_' + str_policy+'.png')
@@ -263,7 +280,7 @@ def main(country,
         suptitle = '\nPeak/Maximum of Infected Ratio in the population: ' + str_max_I_1 + str_max2
         bplot(t, sol_agg_SIR_I_plot, plot_type=1, filesave=filesave_I,
               suptitle=suptitle, labels=my_labels_I, list_vl=list_t_switch,
-              all_policies=all_policies, ylabel='Infective Ratio')
+              list_all_policies=list_all_policies, ylabel='Infective Ratio')
 
 
         if if_uncontained:
@@ -276,7 +293,7 @@ def main(country,
         suptitle = '\nMaximum Ratio of Recovered in the population: ' + str_max_R_1 + str_max2
         bplot(t, sol_agg_SIR_R_plot, plot_type=1, filesave=filesave_R,
               suptitle=suptitle, labels=my_labels_R, list_vl=list_t_switch,
-              all_policies=all_policies, ylabel='Recovered Ratio')
+              list_all_policies=list_all_policies, ylabel='Recovered Ratio')
 
 
     return dict_out

@@ -112,3 +112,45 @@ def scale_B_opt(B_opt_in, list_scales=None):
         B_opt_out[idx, :] = B_opt_out[idx, :] * list_scales[idx]
 
     return B_opt_out
+
+def sort_out_t_policy_x0(policy_definition, xternal_inputs, t_end, x0_vec):
+    import numpy as np
+    Ng = len(x0_vec)
+    list_t_switch = list(policy_definition.keys())
+    list_all_policies = list(policy_definition.values())
+    list_x0_xtrnl_dummy = [list(np.zeros(Ng))]*len(list_all_policies)
+
+    list_t_xtrnl = list(xternal_inputs.keys())
+    list_x0_xtrnl = list(xternal_inputs.values())
+    list_all_policies_dummy = [None]*len(list_x0_xtrnl)
+
+    for idx, t in enumerate(list_t_switch):
+        try:
+            list_idx = [idx2 for idx2, x in enumerate(list_t_xtrnl) if x == t]
+            idx2 = list_idx[0]
+        except IndexError:
+            continue
+        list_x0_xtrnl_dummy[idx] = list_x0_xtrnl[idx2]
+        list_t_xtrnl.pop(idx2)
+        list_all_policies_dummy.pop(idx2)
+        list_x0_xtrnl.pop(idx2)
+
+    list_t = list_t_switch + list_t_xtrnl
+    list_policies = list_all_policies + list_all_policies_dummy
+    list_x0 = list_x0_xtrnl_dummy + list_x0_xtrnl
+
+
+    ind_sorted = np.argsort(list_t)
+    list_t1 = [list_t[x] for x in ind_sorted]
+
+    list_t2 = list_t1.copy()
+    list_t2.append(t_end + 1e-10)
+    list_t2.pop(0)
+    list_policies = [list_policies[x] for x in ind_sorted]
+    list_x0 = [list_x0[x] for x in ind_sorted]
+
+    for idx3 in np.arange(len(list_policies)-1)+1:
+        if not list_policies[idx3]:
+            list_policies[idx3] = list_policies[idx3-1]
+
+    return list_t1, list_t2, list_policies, list_x0, list_t_switch, list_all_policies

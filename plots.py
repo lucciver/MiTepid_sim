@@ -16,7 +16,7 @@ def bplot(t, sol,
           labels=[''],
           suptitle='',
           list_vl=[],
-          all_policies=[],
+          list_all_policies=[],
           ylabel='',
           if_plot_in_pc=True):
     """
@@ -46,7 +46,7 @@ def bplot(t, sol,
         main plot title. The default is ''.
     list_vl : list float, optional
         list of swithing times between policies, marked by red vertical lines. The default is [].
-    all_policies : list of str, optional
+    list_all_policies : list of str, optional
         list of policies to implement at each switching time. The default is [].
     ylabel : str, optional
         y-axis label. The default is ''.
@@ -117,7 +117,7 @@ def bplot(t, sol,
             ax.axvline(x=xc, color='r', linestyle='--', linewidth=1)
             bbox = {'fc': '0.9', 'pad': 4}
             props = {'ha': 'center', 'va': 'center', 'bbox': bbox,}
-            my_text = all_policies[idx1]
+            my_text = list_all_policies[idx1]
             # make sure policy label does not cover main plot
             idx_xc_in_t = [idx for idx, x in enumerate(t) if x>xc][0]
             if sol[idx_xc_in_t, 0] < 0.9*ylim_max and sol[idx_xc_in_t, 0] < 0.7*ylim_max:
