@@ -6,7 +6,12 @@ Created on Fri Mar 20 12:59:33 2020
 @author: vbokharaie
 """
 
-def main(country, policy_name, policy_definition, dir_save_plots_main):
+def main(country,
+         policy_name,
+         policy_definition,
+         dir_save_plots_main,
+         t_end=500,
+         x0_vec = [1e-3],):
     """
     Simulate the epid model.
 
@@ -56,7 +61,6 @@ def main(country, policy_name, policy_definition, dir_save_plots_main):
     dict_pop['Germany'] = [9.2, 9.6, 11.2, 12.8, 12.5, 16.2, 12.4, 9.1, 6.9]
 
 
-    # country = 'Iran'  # can be any one of the above
     dir_save_plots_country = Path(dir_save_plots_main, country)
 
 
@@ -78,15 +82,30 @@ def main(country, policy_name, policy_definition, dir_save_plots_main):
 
 
 
+    #%%
+    if set(list(policy_definition.keys())) == set([0]) and \
+        set(list(policy_definition.values())) == set(['Uncontained']):
+        print('polciy is uncontained')
+        if_uncontained = True
+    else:
+        if_uncontained = False
+
     #%% R_0 uncontained
     rho = np.max(np.abs(eigvals(np.matmul(-inv(D),B_opt_SIS_orig))))  # spectral radius of -inv(D)*B
     print('\u03C1 = %2.2f'% rho)
 
     # initial conditions, t_f
-    x00 = 1e-3
-    x0_SIS = np.ones(Ng)*x00
-    x0_SIR = np.concatenate((np.ones(Ng)*x00, np.zeros(Ng)))
-    t_end = 500
+    if len(x0_vec) == 1:
+        x0_SIS = np.ones(Ng)*x0_vec
+        x0_SIR = np.concatenate((np.ones(Ng)*x0_vec, np.zeros(Ng)))
+    elif len(x0_vec) == Ng:
+        x0_SIS = x0_vec
+        x0_SIR = np.concatenate((x0_vec, np.zeros(Ng)))
+    elif len(x0_vec) == 2*Ng:
+        x0_SIS = x0_vec[:Ng]
+        x0_SIR = x0_vec
+    else:
+        raise('Something wrong with initial conditions vector!')
 
     # uncontained solution
     t = np.arange(0, t_end+.01, step=0.1)
@@ -184,18 +203,26 @@ def main(country, policy_name, policy_definition, dir_save_plots_main):
         bplot(t, abs(sol_SIS-sol_SIR_I), plot_type=plot_type, filesave=filesave,
               labels=age_groups, suptitle=suptitle, list_vl=list_t_switch, all_policies=all_policies)
         ### Aggregate
-        my_labels_I = ['policy',
-                     'Uncontained',]
-        my_labels_R = ['policy',
-                     'Uncontained',]
+        if if_uncontained:
+            my_labels_I = ['Uncontained']
+            my_labels_R = ['Uncontained']
+        else:
+            my_labels_I = ['policy',
+                         'Uncontained',]
+            my_labels_R = ['policy',
+                         'Uncontained',]
 
         filesave = Path(dir_save_plots, 'SIS_AGG_' + str_policy+'.png')
         sol_agg_SIS = sol_aggregate(sol_SIS, dict_pop[country])
 
-        str_max1 = "{:2.2f}".format((sol_agg_SIS_orig[-1,0])*100)+ '%'+ ', '
-        sol_agg_SIS_plot = np.concatenate((sol_agg_SIS, sol_agg_SIS_orig), axis=1)
+        str_max1 = "{:2.2f}".format((sol_agg_SIS_orig[-1,0])*100)+ '%'
+        if if_uncontained:
+            sol_agg_SIS_plot = sol_agg_SIS
+            str_max2 = ''
+        else:
+            sol_agg_SIS_plot = np.concatenate((sol_agg_SIS, sol_agg_SIS_orig), axis=1)
+            str_max2 = ", {:2.2f}".format((sol_agg_SIS[-1,0])*100)+ '%'
 
-        str_max2 = "{:2.2f}".format((sol_agg_SIS[-1,0])*100)+ '%'
         suptitle = '\nEventual Ratio of Total Infected: ' \
             + str_max1 + str_max2
 
@@ -208,21 +235,29 @@ def main(country, policy_name, policy_definition, dir_save_plots_main):
         filesave_R = Path(dir_save_plots, 'SIR_R_AGG_' + str_policy+'.png')
         sol_agg_SIR_I = sol_aggregate(sol_SIR_I, dict_pop[country])
         sol_agg_SIR_R = sol_aggregate(sol_SIR_R, dict_pop[country])
-        str_max_I_1 = "{:2.2f}".format(np.max(sol_agg_SIR_I_orig)*100)+ '%'+ ', '
-        str_max_R_1 = "{:2.2f}".format(np.max(sol_agg_SIR_R_orig)*100)+ '%'+ ', '
-
-        sol_agg_SIR_I_plot = np.concatenate((sol_agg_SIR_I,
-                                           sol_agg_SIR_I_orig,), axis=1)
-
-        str_max2 = "{:2.2f}".format(np.max(sol_agg_SIR_I)*100)+ '%'
+        str_max_I_1 = "{:2.2f}".format(np.max(sol_agg_SIR_I_orig)*100)+ '%'
+        str_max_R_1 = "{:2.2f}".format(np.max(sol_agg_SIR_R_orig)*100)+ '%'
+            # SIR I
+        if if_uncontained:
+            sol_agg_SIR_I_plot = sol_agg_SIR_I
+            str_max2 = ''
+        else:
+            sol_agg_SIR_I_plot = np.concatenate((sol_agg_SIR_I,
+                                             sol_agg_SIR_I_orig,), axis=1)
+            str_max2 = ", {:2.2f}".format(np.max(sol_agg_SIR_I)*100)+ '%'
         suptitle = '\nPeak of Infected Ratio in the population: ' + str_max_I_1 + str_max2
         bplot(t, sol_agg_SIR_I_plot, plot_type=1, filesave=filesave_I,
               suptitle=suptitle, labels=my_labels_I, list_vl=list_t_switch,
               all_policies=all_policies, ylabel='InfectivesRatio')
-        sol_agg_SIR_R_plot = np.concatenate((sol_agg_SIR_R,
-                                            sol_agg_SIR_R_orig), axis=1)
 
-        str_max2 = "{:2.2f}".format(np.max(sol_agg_SIR_R)*100)+ '%'
+
+        if if_uncontained:
+            sol_agg_SIR_R_plot = sol_agg_SIR_R
+            str_max2 = ''
+        else:
+            sol_agg_SIR_R_plot = np.concatenate((sol_agg_SIR_R,
+                                                 sol_agg_SIR_R_orig), axis=1)
+            str_max2 = ", {:2.2f}".format(np.max(sol_agg_SIR_R)*100)+ '%'
         suptitle = '\nEventual Ratio of Recovered in the population: ' + str_max_R_1 + str_max2
         bplot(t, sol_agg_SIR_R_plot, plot_type=1, filesave=filesave_R,
               suptitle=suptitle, labels=my_labels_R, list_vl=list_t_switch,
