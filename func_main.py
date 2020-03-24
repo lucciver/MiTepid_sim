@@ -10,7 +10,7 @@ def main(country,
          policy_name,
          policy_definition,
          dir_save_plots_main='',
-         t_end=500,
+         t_end=541,
          x0_vec = [1e-3],
          xternal_inputs={},):
     """
@@ -107,14 +107,16 @@ def main(country,
         x0_SIS = np.ones(Ng)*x0_vec
         x0_SIR = np.concatenate((np.ones(Ng)*x0_vec, np.zeros(Ng)))
     elif len(x0_vec) == Ng:
+        print('len=Ng')
         x0_SIS = x0_vec
         x0_SIR = np.concatenate((x0_vec, np.zeros(Ng)))
     elif len(x0_vec) == 2*Ng:
+        print('len=2*Ng')
         x0_SIS = x0_vec[:Ng]
         x0_SIR = x0_vec
     else:
         raise('Something wrong with initial conditions vector!')
-
+    print(len(x0_SIS))
     # uncontained solution
     t = np.arange(0, t_end+.01, step=0.1)
 
@@ -136,7 +138,7 @@ def main(country,
     #                 'Elderly_stay_home',]
     from utils import sort_out_t_policy_x0
     list_t1, list_t2, list_policies, list_x0, list_t_switch, list_all_policies = \
-        sort_out_t_policy_x0(policy_definition, xternal_inputs, t_end, x0_SIS)
+        sort_out_t_policy_x0(policy_definition, xternal_inputs, t_end, Ng)
 
     str_policy = policy_name  # used to make subfolder name
     dir_save_plots = Path(dir_save_plots_country, Path(str_policy))
@@ -164,9 +166,10 @@ def main(country,
         #     t_switch2 = t_end + 1e-10
 
         t_step = np.arange(t_switch1, t_switch2, step=0.1)
-        x0_SIS = x0_SIS + x0_xtrnal
-        x0_SIR = x0_SIR + np.concatenate((x0_xtrnal, np.zeros(Ng)))
+        x0_SIS = np.array(x0_SIS) + np.array(x0_xtrnal)
+        x0_SIR = np.array(x0_SIR) + np.concatenate((x0_xtrnal, np.zeros(Ng)))
         # solve the ODE
+        print(len(x0_SIS))
         sol_SIS_step = odeint(SIS, x0_SIS, t_step, args=(B_opt_SIS, ALPHA))
         sol_SIR_step = odeint(SIR, x0_SIR, t_step, args=(B_opt_SIR, ALPHA))
 
@@ -210,11 +213,11 @@ def main(country,
     if if_plot:
         # str_type = 'pt'+str(plot_type)+'_'
         ### SIS
-        filesave = Path(dir_save_plots, 'SIS_groups_' + str_policy+'.png')
-        suptitle = country + ' --- SIS'
-        bplot(t, sol_SIS, plot_type=plot_type, filesave=filesave,
-              labels=age_groups, suptitle='', list_vl=list_t_switch,
-              list_all_policies=list_all_policies, ylabel='Infective Ratio')
+        # filesave = Path(dir_save_plots, 'SIS_groups_' + str_policy+'.png')
+        # suptitle = country + ' --- SIS'
+        # bplot(t, sol_SIS, plot_type=plot_type, filesave=filesave,
+        #       labels=age_groups, suptitle='', list_vl=list_t_switch,
+        #       list_all_policies=list_all_policies, ylabel='Infective Ratio')
 
 
         ### SIR_I
@@ -232,10 +235,10 @@ def main(country,
               list_all_policies=list_all_policies, ylabel='Recoverd Ratio')
 
         ### diff
-        suptitle = ' Difference between solutions to SIS and SIR models'
-        filesave = Path(dir_save_plots, 'diff_SIS_SIR_groups_' + str_policy+'.png')
-        bplot(t, abs(sol_SIS-sol_SIR_I), plot_type=plot_type, filesave=filesave,
-              labels=age_groups, suptitle=suptitle, list_vl=list_t_switch, list_all_policies=list_all_policies)
+        # suptitle = ' Difference between solutions to SIS and SIR models'
+        # filesave = Path(dir_save_plots, 'diff_SIS_SIR_groups_' + str_policy+'.png')
+        # bplot(t, abs(sol_SIS-sol_SIR_I), plot_type=plot_type, filesave=filesave,
+        #       labels=age_groups, suptitle=suptitle, list_vl=list_t_switch, list_all_policies=list_all_policies)
         ### Aggregate
         if if_uncontained:
             my_labels_I = ['Uncontained']
@@ -260,9 +263,9 @@ def main(country,
         suptitle = '\nMaximum Ratio of Total Infected: ' \
             + str_max1 + str_max2
 
-        bplot(t, sol_agg_SIS_plot, plot_type=1, filesave=filesave,
-              suptitle=suptitle, labels=my_labels_I, list_vl=list_t_switch,
-              list_all_policies=list_all_policies, ylabel='Infective Ratio')
+        # bplot(t, sol_agg_SIS_plot, plot_type=1, filesave=filesave,
+        #       suptitle=suptitle, labels=my_labels_I, list_vl=list_t_switch,
+        #       list_all_policies=list_all_policies, ylabel='Infective Ratio')
 
         # SIR
         filesave_I = Path(dir_save_plots, 'SIR_I_AGG_' + str_policy+'.png')

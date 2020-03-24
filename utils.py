@@ -113,9 +113,8 @@ def scale_B_opt(B_opt_in, list_scales=None):
 
     return B_opt_out
 
-def sort_out_t_policy_x0(policy_definition, xternal_inputs, t_end, x0_vec):
+def sort_out_t_policy_x0(policy_definition, xternal_inputs, t_end, Ng):
     import numpy as np
-    Ng = len(x0_vec)
     list_t_switch = list(policy_definition.keys())
     list_all_policies = list(policy_definition.values())
     list_x0_xtrnl_dummy = [list(np.zeros(Ng))]*len(list_all_policies)

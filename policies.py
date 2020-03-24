@@ -146,7 +146,8 @@ def get_Bopt(file_data_opt, country='Germany', policy='Uncontained', ):
         w_adults = 0.2
         w_old = 0.25
         list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
-
+    elif not policy == 'Uncontained':
+        raise('Policy was not recognized.')
     if policy == 'Uncontained':
         B_opt = B_opt_orig
     else:

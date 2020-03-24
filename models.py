@@ -34,6 +34,7 @@ def SIR(xy, t, B, ALPHA):
     y = xy[Ng:]
     dxdt = np.zeros(Ng);
     dydt = np.zeros(Ng);
+
     for cc1 in np.arange(Ng):
         # I
         Sigma_x = 0;

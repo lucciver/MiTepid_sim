@@ -89,7 +89,7 @@ def bplot(t, sol,
     colors = pl.cm.viridis(np.linspace(0,1,Ng))
     if if_plot_in_pc:
         if ylabel:
-            ylabel = ylabel + ' in %'
+            ylabel = ylabel + ' (values in %)'
 
         y_ax_scale = 100
     else:
@@ -97,7 +97,7 @@ def bplot(t, sol,
 
     if plot_type == 1:
         fig, ax = plt.subplots(1, 1)
-        fig.subplots_adjust(bottom=0.15, top=0.90, left=0.1, right = 0.9)
+        fig.subplots_adjust(bottom=0.1, top=0.92, left=0.1, right = 0.9)
         for cc in np.arange(Ng):
             # my_label = 'x'+str(cc+1).zfill(2)
 
@@ -108,7 +108,7 @@ def bplot(t, sol,
                 ax.set_ylim(ylim)
             if not labels==['']:
                 ax.legend(bbox_to_anchor=(1.1, 1.06), prop={'size': 12})
-            ax.set_xlabel('Time (days)')
+            ax.set_xlabel('\nTime (days)')
             ax.set_xticks(np.arange(0, t[-1], step=30))
             plt.xticks(rotation=90)
             ax.set_ylabel(ylabel)
