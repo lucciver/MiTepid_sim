@@ -124,7 +124,8 @@ def bplot(t, sol,
                 policy_label_loc = 0.8*ylim_max
             else:
                 policy_label_loc = 0.3*ylim_max
-            ax.text(xc+10, policy_label_loc, my_text, props, rotation=90, color=colors[0])
+            xc_plot = xc+10*t[-1]/500
+            ax.text(xc_plot, policy_label_loc, my_text, props, rotation=90, color=colors[0])
         fig.suptitle(suptitle, fontsize=20, fontweight='bold')
     elif plot_type == 2:
         fig, ax = plt.subplots(Ng, 1, figsize=(18,12))

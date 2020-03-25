@@ -113,23 +113,29 @@ def get_Bopt(file_data_opt, country='Germany', policy='Uncontained', ):
         w_kids = 0.1
         list_scales = [w_kids, w_kids, 1, 1, 1, 1, 1, 1, 1, ]
     #------------------------
+    elif policy == 'Schools_Offices_closed':
+        w_kids = 0.1
+        w_adults = 0.5
+        w_old = 1
+        list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
+    #------------------------
     elif policy == 'Adults_self_isolate':
         w_adults = 0.4
         list_scales = [1, 1, w_adults, w_adults, w_adults, w_adults, w_adults, 1, 1, ]
     #------------------------
     elif policy == 'Lockdown':
         w_kids = 0.1
-        w_adults = 0.2
+        w_adults = 0.1
         w_old = 0.25
         list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
     #------------------------
-    elif policy == 'Elderly_stay_home':
-        w_kids = 1.0
+    elif policy == 'Kids_Elderly_stay_home':
+        w_kids = 0.1
         w_adults = 1.0
         w_old = 0.25
         list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
     #------------------------
-    elif policy == 'All_self_isolate':
+    elif policy == 'Social_Distancing':
         w_kids = 0.2
         w_adults = 0.2
         w_old = 0.5

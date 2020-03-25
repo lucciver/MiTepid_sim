@@ -93,30 +93,24 @@ def main(country,
 
     #%%
     if policy_name == 'Uncontained':
-        print('polciy is uncontained')
+        print('policy is uncontained')
         if_uncontained = True
     else:
         if_uncontained = False
 
-    #%% R_0 uncontained
-    rho = np.max(np.abs(eigvals(np.matmul(-inv(D),B_opt_SIS_orig))))  # spectral radius of -inv(D)*B
-    print('\u03C1 = %2.2f'% rho)
 
     # initial conditions, t_f
     if len(x0_vec) == 1:
         x0_SIS = np.ones(Ng)*x0_vec
         x0_SIR = np.concatenate((np.ones(Ng)*x0_vec, np.zeros(Ng)))
     elif len(x0_vec) == Ng:
-        print('len=Ng')
         x0_SIS = x0_vec
         x0_SIR = np.concatenate((x0_vec, np.zeros(Ng)))
     elif len(x0_vec) == 2*Ng:
-        print('len=2*Ng')
         x0_SIS = x0_vec[:Ng]
         x0_SIR = x0_vec
     else:
         raise('Something wrong with initial conditions vector!')
-    print(len(x0_SIS))
     # uncontained solution
     t = np.arange(0, t_end+.01, step=0.1)
 
@@ -159,6 +153,9 @@ def main(country,
 
         B_opt_SIS = get_Bopt(file_data_opt_SIS, country, policy)
         B_opt_SIR = get_Bopt(file_data_opt_SIR, country, policy)
+        #%% R_0 policy
+        rho = np.max(np.abs(eigvals(np.matmul(-inv(D),B_opt_SIR))))  # spectral radius of -inv(D)*B
+        print('\u03C1 = %2.2f'% rho)
 
         # try:
         #     t_switch2 = list_t_switch[idx+1]
@@ -169,7 +166,6 @@ def main(country,
         x0_SIS = np.array(x0_SIS) + np.array(x0_xtrnal)
         x0_SIR = np.array(x0_SIR) + np.concatenate((x0_xtrnal, np.zeros(Ng)))
         # solve the ODE
-        print(len(x0_SIS))
         sol_SIS_step = odeint(SIS, x0_SIS, t_step, args=(B_opt_SIS, ALPHA))
         sol_SIR_step = odeint(SIR, x0_SIR, t_step, args=(B_opt_SIR, ALPHA))
 
@@ -213,7 +209,7 @@ def main(country,
     if if_plot:
         # str_type = 'pt'+str(plot_type)+'_'
         ### SIS
-        # filesave = Path(dir_save_plots, 'SIS_groups_' + str_policy+'.png')
+        # filesave = Path(dir_save_plots, 'SIS_groups_' + str_policy+'_tf_'+str(int(t_end))+'.png')
         # suptitle = country + ' --- SIS'
         # bplot(t, sol_SIS, plot_type=plot_type, filesave=filesave,
         #       labels=age_groups, suptitle='', list_vl=list_t_switch,
@@ -222,21 +218,21 @@ def main(country,
 
         ### SIR_I
         suptitle = ''
-        filesave = Path(dir_save_plots, 'SIR_I_groups_' + str_policy+'.png')
+        filesave = Path(dir_save_plots, 'SIR_I_groups_' + str_policy+'_tf_'+str(int(t_end))+'.png')
         bplot(t, sol_SIR_I, plot_type=plot_type, filesave=filesave,
               labels=age_groups, suptitle=suptitle, list_vl=list_t_switch,
               list_all_policies=list_all_policies, ylabel='Infective Ratio')
 
         ### SIR_R
         suptitle = ''
-        filesave = Path(dir_save_plots, 'SIR_R_groups_' + str_policy+'.png')
+        filesave = Path(dir_save_plots, 'SIR_R_groups_' + str_policy+'_tf_'+str(int(t_end))+'.png')
         bplot(t, sol_SIR_R, plot_type=plot_type, filesave=filesave,
               labels=age_groups, suptitle=suptitle, list_vl=list_t_switch,
               list_all_policies=list_all_policies, ylabel='Recoverd Ratio')
 
         ### diff
         # suptitle = ' Difference between solutions to SIS and SIR models'
-        # filesave = Path(dir_save_plots, 'diff_SIS_SIR_groups_' + str_policy+'.png')
+        # filesave = Path(dir_save_plots, 'diff_SIS_SIR_groups_' + str_policy+'_tf_'+str(int(t_end))+'.png')
         # bplot(t, abs(sol_SIS-sol_SIR_I), plot_type=plot_type, filesave=filesave,
         #       labels=age_groups, suptitle=suptitle, list_vl=list_t_switch, list_all_policies=list_all_policies)
         ### Aggregate
@@ -249,7 +245,7 @@ def main(country,
             my_labels_R = ['policy',
                          'Uncontained',]
 
-        filesave = Path(dir_save_plots, 'SIS_AGG_' + str_policy+'.png')
+        filesave = Path(dir_save_plots, 'SIS_AGG_' + str_policy+'_tf_'+str(int(t_end))+'.png')
 
 
         str_max1 = "{:2.2f}".format((sol_agg_SIS_orig[-1,0])*100)+ '%'
@@ -268,8 +264,8 @@ def main(country,
         #       list_all_policies=list_all_policies, ylabel='Infective Ratio')
 
         # SIR
-        filesave_I = Path(dir_save_plots, 'SIR_I_AGG_' + str_policy+'.png')
-        filesave_R = Path(dir_save_plots, 'SIR_R_AGG_' + str_policy+'.png')
+        filesave_I = Path(dir_save_plots, 'SIR_I_AGG_' + str_policy+'_tf_'+str(int(t_end))+'.png')
+        filesave_R = Path(dir_save_plots, 'SIR_R_AGG_' + str_policy+'_tf_'+str(int(t_end))+'.png')
         str_max_I_1 = "{:2.2f}".format(np.max(sol_agg_SIR_I_orig)*100)+ '%'
         str_max_R_1 = "{:2.2f}".format(np.max(sol_agg_SIR_R_orig)*100)+ '%'
             # SIR I
@@ -280,6 +276,24 @@ def main(country,
             sol_agg_SIR_I_plot = np.concatenate((sol_agg_SIR_I,
                                              sol_agg_SIR_I_orig,), axis=1)
             str_max2 = ", {:2.2f}".format(np.max(sol_agg_SIR_I)*100)+ '%'
+
+        if if_uncontained:
+            t_max_I = t[np.argmax(sol_agg_SIR_I_orig)]
+
+            str_print_I = str_max_I_1
+            str_print_R = str_max_R_1
+        else:
+            t_max_I = t[np.argmax(sol_agg_SIR_I)]
+            str_print_I = ", {:2.2f}".format(np.max(sol_agg_SIR_I)*100)+ '%'
+            str_print_R = ", {:2.2f}".format(np.max(sol_agg_SIR_R)*100)+ '%'
+
+        print('--------------------------')
+        print(policy_name)
+        print('x0= ', x0_vec)
+        print('Max instantaneous infected: ', str_print_I)
+        print('Time to reach max infected: ', t_max_I)
+        print('Max recovered: ', str_print_R)
+
         suptitle = '\nPeak/Maximum of Infected Ratio in the population: ' + str_max_I_1 + str_max2
         bplot(t, sol_agg_SIR_I_plot, plot_type=1, filesave=filesave_I,
               suptitle=suptitle, labels=my_labels_I, list_vl=list_t_switch,
