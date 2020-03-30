@@ -163,3 +163,19 @@ if __name__ == '__main__':
     dict_current = main(country, policy_name, policy_definition,
                             dir_save_plots_main, t_end=t_end, x0_vec=x0_vec)
 
+    #%% 8. current status then Lock-down fir only two months and then kids elderly stay home
+    t_end = 541
+    list_t_switch = [0, 54, 77, 90, 120,]
+    all_policies = ['Uncontained',
+                    'Schools_closed',
+                    'Schools_Offices_closed',
+                    'Lockdown',
+                    'R0_1_type2',
+                   ]
+    policy_definition = dict(zip(list_t_switch, all_policies))
+    x0_vec=[x00, x00, x00, x00, x00, x00, x00, x00, x00,]
+    policy_name = 'Current_status_then_Lockdown_then_R0_1'
+    dict_current = main(country, policy_name, policy_definition,
+                            dir_save_plots_main, t_end=t_end, x0_vec=x0_vec)
+
+
