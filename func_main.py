@@ -29,7 +29,7 @@ def main(country,
     dir_save_plots_main : pathlib Path
         main folder to save plots. Then a subfolder in country/policyname is used to save files.
     xternal_inputs : dict
-        dictionary of time/xternal_input. To model new infectives fro moutside the populations
+        dictionary of time/xternal_input. To model new Infectiouss fro moutside the populations
             example: incoming flights, etc.
     t_end : float
         end time of simulation, in days
@@ -213,7 +213,7 @@ def main(country,
         # suptitle = country + ' --- SIS'
         # bplot(t, sol_SIS, plot_type=plot_type, filesave=filesave,
         #       labels=age_groups, suptitle='', list_vl=list_t_switch,
-        #       list_all_policies=list_all_policies, ylabel='Infective Ratio')
+        #       list_all_policies=list_all_policies, ylabel='Infectious Ratio')
 
 
         ### SIR_I
@@ -221,7 +221,7 @@ def main(country,
         filesave = Path(dir_save_plots, 'SIR_I_groups_' + str_policy+'_tf_'+str(int(t_end))+'.png')
         bplot(t, sol_SIR_I, plot_type=plot_type, filesave=filesave,
               labels=age_groups, suptitle=suptitle, list_vl=list_t_switch,
-              list_all_policies=list_all_policies, ylabel='Infective Ratio')
+              list_all_policies=list_all_policies, ylabel='Infectious Ratio')
 
         ### SIR_R
         suptitle = ''
@@ -230,11 +230,6 @@ def main(country,
               labels=age_groups, suptitle=suptitle, list_vl=list_t_switch,
               list_all_policies=list_all_policies, ylabel='Recoverd Ratio')
 
-        ### diff
-        # suptitle = ' Difference between solutions to SIS and SIR models'
-        # filesave = Path(dir_save_plots, 'diff_SIS_SIR_groups_' + str_policy+'_tf_'+str(int(t_end))+'.png')
-        # bplot(t, abs(sol_SIS-sol_SIR_I), plot_type=plot_type, filesave=filesave,
-        #       labels=age_groups, suptitle=suptitle, list_vl=list_t_switch, list_all_policies=list_all_policies)
         ### Aggregate
         if if_uncontained:
             my_labels_I = ['Uncontained']
@@ -256,12 +251,12 @@ def main(country,
             sol_agg_SIS_plot = np.concatenate((sol_agg_SIS, sol_agg_SIS_orig), axis=1)
             str_max2 = ", {:2.2f}".format((sol_agg_SIS[-1,0])*100)+ '%'
 
-        suptitle = '\nMaximum Ratio of Total Infected: ' \
+        suptitle = '\nMaximum Ratio of Total Infectious: ' \
             + str_max1 + str_max2
 
         # bplot(t, sol_agg_SIS_plot, plot_type=1, filesave=filesave,
         #       suptitle=suptitle, labels=my_labels_I, list_vl=list_t_switch,
-        #       list_all_policies=list_all_policies, ylabel='Infective Ratio')
+        #       list_all_policies=list_all_policies, ylabel='Infectious Ratio')
 
         # SIR
         filesave_I = Path(dir_save_plots, 'SIR_I_AGG_' + str_policy+'_tf_'+str(int(t_end))+'.png')
@@ -290,15 +285,23 @@ def main(country,
         print('--------------------------')
         print(policy_name)
         print('x0= ', x0_vec)
-        print('Max instantaneous infected: ', str_print_I)
-        print('Time to reach max infected: ', t_max_I)
+        print('Max instantaneous Infectious: ', str_print_I)
+        print('Time to reach max Infectious: ', t_max_I)
         print('Max recovered: ', str_print_R)
 
-        suptitle = '\nPeak/Maximum of Infected Ratio in the population: ' + str_max_I_1 + str_max2
+        suptitle = '\nPeak/Maximum of Infectious Ratio in the population: ' + str_max_I_1 + str_max2
         bplot(t, sol_agg_SIR_I_plot, plot_type=1, filesave=filesave_I,
               suptitle=suptitle, labels=my_labels_I, list_vl=list_t_switch,
-              list_all_policies=list_all_policies, ylabel='Infective Ratio')
+              list_all_policies=list_all_policies, ylabel='Infectious Ratio')
 
+        ### diff
+        suptitle = ' Difference between solutions to SIS and SIR models'
+        filesave_diff = Path(dir_save_plots, 'diff_SIS_SIR_agg_' + str_policy+'_tf_'+str(int(t_end))+'.png')
+        bplot(t, sol_agg_SIS_plot-sol_agg_SIR_I_plot,
+              sol2 = sol_agg_SIR_I_plot,
+              plot_type=1, filesave=filesave_diff,
+              suptitle=suptitle, labels=my_labels_I, list_vl=list_t_switch,
+              list_all_policies=list_all_policies, ylabel='Infectious Ratio')
 
         if if_uncontained:
             sol_agg_SIR_R_plot = sol_agg_SIR_R
@@ -307,7 +310,7 @@ def main(country,
             sol_agg_SIR_R_plot = np.concatenate((sol_agg_SIR_R,
                                                  sol_agg_SIR_R_orig), axis=1)
             str_max2 = ", {:2.2f}".format(np.max(sol_agg_SIR_R)*100)+ '%'
-        suptitle = '\nMaximum Ratio of Recovered in the population: ' + str_max_R_1 + str_max2
+        suptitle = '\nMaximum Ratio of Removed Compartment in the population: ' + str_max_R_1 + str_max2
         bplot(t, sol_agg_SIR_R_plot, plot_type=1, filesave=filesave_R,
               suptitle=suptitle, labels=my_labels_R, list_vl=list_t_switch,
               list_all_policies=list_all_policies, ylabel='Recovered Ratio')

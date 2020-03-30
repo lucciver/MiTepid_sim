@@ -113,6 +113,12 @@ def get_Bopt(file_data_opt, country='Germany', policy='Uncontained', ):
         w_kids = 0.1
         list_scales = [w_kids, w_kids, 1, 1, 1, 1, 1, 1, 1, ]
     #------------------------
+    elif policy == 'R0_1_type2':
+        w_kids = 0.4973
+        w_adults = 0.5643
+        w_old =  0.1490
+        list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
+    #------------------------
     elif policy == 'Schools_Offices_closed':
         w_kids = 0.1
         w_adults = 0.5
