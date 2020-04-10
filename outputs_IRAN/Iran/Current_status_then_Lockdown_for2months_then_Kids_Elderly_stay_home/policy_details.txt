@@ -1,9 +1,0 @@
-
-    time (day) --->  Policy
-    ------------------------------------------
-        0.0    --->  Uncontained
-       54.0    --->  Schools_closed
-       77.0    --->  Schools_Offices_closed
-       90.0    --->  Lockdown
-      150.0    --->  Uncontained
-      180.0    --->  Kids_Elderly_stay_home
