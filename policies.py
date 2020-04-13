@@ -35,44 +35,69 @@ def str_policy_info():
     ---------------------------------------------------------------------------------------
 
     # these policies are defined intuitively,
-    # all suggestions to make them more accurate are welcome
     #------------------------
-    'Schools_closed':
-        w_kids = 0.1
-        list_scales = [w_kids, w_kids, 1, 1, 1, 1, 1, 1, 1, ]
-    #------------------------
-    'Adults_self_isolate':
-        w_adults = 0.4
-        list_scales = [1, 1, w_adults, w_adults, w_adults, w_adults, w_adults, 1, 1, ]
-    #------------------------
-    'Lockdown':
-        w_kids = 0.1
-        w_adults = 0.2
-        w_old = 0.25
+    if policy == 'Uncontained':
+        w_kids = 1
+        w_adults = 1
+        w_old =  1
         list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
     #------------------------
-    'Elderly_stay_home':
+    elif policy == 'Schools_closed':
+        w_kids = 0.2
+        w_adults = 1
+        w_old =  1
+        list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
+    #------------------------
+    elif policy == 'Elderly_self_isolate':
         w_kids = 1.0
         w_adults = 1.0
         w_old = 0.25
         list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
     #------------------------
-    'All_self_isolate':
+    elif policy == 'Kids_Elderly_self_isolate':
+        w_kids = 0.2
+        w_adults = 1.0
+        w_old = 0.25
+        list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
+    #------------------------
+    elif policy == 'Social_Distancing':
         w_kids = 0.2
         w_adults = 0.2
-        w_old = 0.5
+        w_old = 0.25
         list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
     #------------------------
-    'All_s_isolate_but_kids':
-        w_kids = 1
-        w_adults = 0.2
-        w_old = 0.5
+    elif policy == 'Lockdown':
+        w_kids = 0.1
+        w_adults = 0.1
+        w_old = 0.1
         list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
     #------------------------
-    'Lockdown_but_kids':
+    elif policy == 'R0_is_1':
+        w_kids = 0.2984
+        w_adults = 0.6047
+        w_old =  0.1015
+        list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
+    #------------------------
+    elif policy == 'Schools_Offices_closed':
+        w_kids = 0.2
+        w_adults = 0.5
+        w_old = 1
+        list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
+    #------------------------
+    elif policy == 'Adults_self_isolate':
+        w_adults = 0.4
+        list_scales = [1, 1, w_adults, w_adults, w_adults, w_adults, w_adults, 1, 1, ]
+    #------------------------
+    elif policy == 'Adults_Elderly_Self_isolate':
         w_kids = 1
         w_adults = 0.2
         w_old = 0.25
+        list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
+    #------------------------
+    elif policy == 'Lockdown_but_kids':
+        w_kids = 1
+        w_adults = 0.1
+        w_old = 0.1
         list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
 
     """
@@ -102,25 +127,56 @@ def get_Bopt(file_data_opt, country='Germany', policy='Uncontained', ):
     # load original (uncontained) Bopt obtained from optimisation performed in matlab
     # variable names in saved files is 'B_opt_' + country, example: B_opt_Germany
     from utils import load_mat, scale_B_opt
-    varname = 'B_opt_' + country
-    B_opt_orig = load_mat(file_data_opt, varname)
-
-
+    varname = 'B_opt_noramlised'
+    B_opt_normalised = load_mat(file_data_opt, varname)
+    B_opt_orig = Bopt_normalised_2_country(B_opt_normalised, get_pop_distr(country))
     # these policies are defined intuitively,
     # all suggestions to make them more accurate are welcome
     #------------------------
-    if policy == 'Schools_closed':
-        w_kids = 0.1
-        list_scales = [w_kids, w_kids, 1, 1, 1, 1, 1, 1, 1, ]
+    if policy == 'Uncontained':
+        w_kids = 1
+        w_adults = 1
+        w_old =  1
+        list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
     #------------------------
-    elif policy == 'R0_1_type2':
-        w_kids = 0.4973
-        w_adults = 0.5643
-        w_old =  0.1490
+    elif policy == 'Schools_closed':
+        w_kids = 0.2
+        w_adults = 1
+        w_old =  1
+        list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
+    #------------------------
+    elif policy == 'Elderly_self_isolate':
+        w_kids = 1.0
+        w_adults = 1.0
+        w_old = 0.25
+        list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
+    #------------------------
+    elif policy == 'Kids_Elderly_self_isolate':
+        w_kids = 0.2
+        w_adults = 1.0
+        w_old = 0.25
+        list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
+    #------------------------
+    elif policy == 'Social_Distancing':
+        w_kids = 0.2
+        w_adults = 0.2
+        w_old = 0.25
+        list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
+    #------------------------
+    elif policy == 'Lockdown':
+        w_kids = 0.1
+        w_adults = 0.1
+        w_old = 0.1
+        list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
+    #------------------------
+    elif policy == 'R0_is_1':
+        w_kids = 0.2984
+        w_adults = 0.6047
+        w_old =  0.1015
         list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
     #------------------------
     elif policy == 'Schools_Offices_closed':
-        w_kids = 0.1
+        w_kids = 0.2
         w_adults = 0.5
         w_old = 1
         list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
@@ -129,34 +185,16 @@ def get_Bopt(file_data_opt, country='Germany', policy='Uncontained', ):
         w_adults = 0.4
         list_scales = [1, 1, w_adults, w_adults, w_adults, w_adults, w_adults, 1, 1, ]
     #------------------------
-    elif policy == 'Lockdown':
-        w_kids = 0.1
-        w_adults = 0.1
-        w_old = 0.25
-        list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
-    #------------------------
-    elif policy == 'Kids_Elderly_stay_home':
-        w_kids = 0.1
-        w_adults = 1.0
-        w_old = 0.25
-        list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
-    #------------------------
-    elif policy == 'Social_Distancing':
-        w_kids = 0.2
-        w_adults = 0.2
-        w_old = 0.5
-        list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
-    #------------------------
-    elif policy == 'All_s_isolate_but_kids':
+    elif policy == 'Adults_Elderly_Self_isolate':
         w_kids = 1
         w_adults = 0.2
-        w_old = 0.5
+        w_old = 0.25
         list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
     #------------------------
     elif policy == 'Lockdown_but_kids':
         w_kids = 1
-        w_adults = 0.2
-        w_old = 0.25
+        w_adults = 0.1
+        w_old = 0.1
         list_scales = [w_kids, w_kids, w_adults, w_adults, w_adults, w_adults, w_adults, w_old, w_old, ]
     elif not policy == 'Uncontained':
         raise('Policy was not recognized.')
@@ -192,6 +230,10 @@ def get_pop_distr(country):
     dict_pop['Iran'] = [17.4, 13.9, 15.5, 20.0, 13.6, 9.7, 6.2, 2.7, 1.0]
     dict_pop['SouthKorea'] = [8.4, 9.5, 13.3, 14.0, 16.3, 16.4, 12.1, 6.6, 3.5]
     dict_pop['Germany'] = [9.2, 9.6, 11.2, 12.8, 12.5, 16.2, 12.4, 9.1, 6.9]
+    dict_pop['Spain'] = [9.3, 10.0, 10.0, 13.2, 17.0, 14.8, 11.0, 8.5, 6.2]
+    dict_pop['France'] = [11.8, 12.0, 11.4, 12.3, 12.9, 13.2, 12.0, 8.4, 6.2]
+    dict_pop['UK'] = [12.0, 11.2, 12.8, 13.7, 12.9, 13.6, 10.8, 8.5, 5.1]
+    dict_pop['USA'] = [12.1, 12.9, 14.0, 13.3, 12.3, 13.0, 11.5, 7.0, 3.9]
 
     list_out = dict_pop[country]
     return list_out
@@ -215,8 +257,10 @@ def Bopt_normalised_2_country(Bopt, list_age_distr):
     """
     import numpy as np
     Ng = Bopt.shape[0]
-    Bopt_country = Bopt.copy()
-    assert len(list_age_distr) != Ng, 'Look at this: dimension mismatch!!! :/'
-    for cc in np.arange(Ng):
-        Bopt_country[cc,:] = Bopt_country[cc,:] * list_age_distr[cc]
+    B_factors = np.zeros(Bopt.shape)
+    assert len(list_age_distr) == Ng, 'Look at this: dimension mismatch!!! :/'
+    for cc1 in np.arange(Ng):
+        for cc2 in np.arange(Ng):
+            B_factors[cc1, cc2] = list_age_distr[cc2]/list_age_distr[cc1]
+    Bopt_country = np.multiply(Bopt, B_factors)
     return Bopt_country

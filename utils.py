@@ -114,6 +114,38 @@ def scale_B_opt(B_opt_in, list_scales=None):
     return B_opt_out
 
 def sort_out_t_policy_x0(policy_definition, xternal_inputs, t_end, Ng):
+    """
+    Take the list of policies and external inputs, turn them into list of times policies.
+
+    Parameters
+    ----------
+    policy_definition : dict
+        dictionary of time: polciy.
+    xternal_inputs : TYPE
+        DESCRIPTION.
+    t_end : float
+        end time, in days.
+    Ng : int
+        Number of groups defined in the model.
+
+    Returns
+    -------
+    list_t1 : list of float
+        list of begin times for each policy.
+    list_t2 : list of float
+        list of end times for each policy.
+    list_policies : list str
+        list of policy names.
+    list_x0 : list float
+        list initial conditions for each policy, in case there is external input.
+    list_t_switch : list float
+        original switching times in policy definition.
+        This would be different than list_t1, is there is external input without policy change.
+    list_all_policies : list str
+        list of all policies. Would be different than list_policies if there is
+        external input without policy change.
+
+    """
     import numpy as np
     list_t_switch = list(policy_definition.keys())
     list_all_policies = list(policy_definition.values())
