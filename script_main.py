@@ -41,7 +41,6 @@ if __name__ == '__main__':
                             dir_save_plots_main, t_end=t_end, x0_vec=x0_vec)
 
 
-
     #%% Uncontained scenario, various countries
     t_end = 541
     list_t_switch = [0]
