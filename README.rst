@@ -93,7 +93,7 @@ Licence
 GNU General Public License (Version 3).
 
 
-Authors
+Author
 -------
 
 `MiTepid` is maintained by `Vahid Samadi Bokharaie <vahid.bokharaie@tuebingen.mpg.de>`_.
