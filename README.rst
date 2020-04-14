@@ -27,11 +27,11 @@ Or you can install it from repo if you want to have the latest (untested) update
 
 Basic Usage
 -----------
-Code should work well under Python 3.x. There is a script coming with the code called ``script_main.py`` which can be used as a template for how to run the code, and demonctrstaes its capabilities. 
+Code should work well under Python 3.x. There is a script coming with the code called ``script_main.py`` which can be used as a template for how to run the code and demonstrates its capabilities. 
 
-The following code snippet, simulates the spread of COVID-19 in Germany. It assumed inintially, 1 in 10,000 in all age groups in Germany are infective. The disease spread uncontained for 60 days and then various containment policies are imposed. The resulting plots for each case saved under ``sample_outputs`` subfolder in current working directory. 
+The following code snippet simulates the spread of COVID-19 in Germany. It assumed initially, 1 in 10,000 in all age groups in Germany are infective. The disease spread uncontained for 60 days and then various containment policies are imposed. The resulting plots for each case saved under ``sample_outputs`` subfolder in the current working directory. 
 
-To see a list of defined policies and countries, look into ``policy.py`` module. To add a country, you should simply add its age distribution in age groups 0-10, 10-20, 20-30, ..., 70-80, and 80+. And to add a new policy, you just need to define coefficients for each of the age-groupa, in [0,1] range, which shows how the policy would affect the contacts of that age-group. 
+To see a list of defined policies and countries, look into ``policy.py`` module. To add a country, you should simply add its age distribution in age groups 0-10, 10-20, 20-30, ..., 70-80, and 80+. And to add a new policy, you just need to define coefficients for each of the age-groups, in [0,1] range, which shows how the policy would affect the contacts of that age-group. 
 
  .. code-block:: bash
 
