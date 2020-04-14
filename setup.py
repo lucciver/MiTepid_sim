@@ -21,7 +21,7 @@ setup(
     author="Vahid Samadi Bokharaie",
     author_email="vahid.bokharaie@tuebingen.mpg.de",
     description="MiTepid_sim: Simulating a stratified model for the spread of COVID19 in any population with known age structure, Made in Tübingen. ",
-    long_description=read("README.md"),
+    long_description=read("README.rst"),
     packages=find_packages(exclude=("tests", "venv")),
     test_suite="nose.collector",
     tests_require=["nose"],
