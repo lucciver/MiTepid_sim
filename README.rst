@@ -90,7 +90,10 @@ For a list of defined policies or how to define new ones, check the ``policies.p
                      ]
 
     policy_definition = dict(zip(list_t_switch, all_policies))
-    x0_vec=[x00, x00, x00, x00, x00, x00, x00, x00, x00,]
+    # Starting with 1 in 10,000 of population being infected in all age-groups. 
+    # Change x0_vec for any initial conditions you like. 
+    x00 = 1e-4  
+    x0_vec=[x00, x00, x00, x00, x00, x00, x00, x00, x00,] 
     policy_name = 'Uncontained_then_switching_Lockdown_R0'
     dict_current = main(country, policy_name, policy_definition,
                             dir_save_plots_main, t_end=t_end, x0_vec=x0_vec)
