@@ -65,6 +65,35 @@ To see a list of defined policies and countries, look into ``policy.py`` module.
         dict_current = main(country, policy_name, policy_definition,
                             dir_save_plots_main, t_end=t_end, x0_vec=x0_vec)
 
+Usage for long-term plans
+-------------------------
+You can also use the code to plan for long-term policies. Something that seems to be more relevant for all countries in the world. We can impose a total lockdown for a limited period of time. But COVID-19 is here to stay until a vaccine is available. So, we should try smarter solutions. The below-mentioned code snippet shows what happens if we switch between uncontained, total lock-down and another policy which will enforce the basic reproduction number to be 1.0. More details can be found in `this manuscript <http://people.tuebingen.mpg.de/vbokharaie/pdf_files/Quantifying_COVID19_Containment_Policies.pdf>`_. 
+
+For a list of defined policies or how to define new ones, check the ``policies.py`` module. 
+
+ .. code-block:: bash
+
+    #%% Switching between Uncontained, policy that enforces R0 = 1.0 and total Lockdown
+    country = 'Germany'
+    t_end = 541
+    list_t_switch = [0, 90, 120, 150, 180, 210, 240, 270, 300, 330,]
+    all_policies = ['Uncontained',
+                    'Lockdown',
+                    'R0_is_1',
+                    'Uncontained',
+                    'Lockdown',
+                    'R0_is_1',
+                    'Uncontained',
+                    'Lockdown',
+                    'R0_is_1',
+                    'Uncontained',
+                     ]
+
+    policy_definition = dict(zip(list_t_switch, all_policies))
+    x0_vec=[x00, x00, x00, x00, x00, x00, x00, x00, x00,]
+    policy_name = 'Uncontained_then_switching_Lockdown_R0'
+    dict_current = main(country, policy_name, policy_definition,
+                            dir_save_plots_main, t_end=t_end, x0_vec=x0_vec)
 
 Requirements
 ^^^^^^^^^^^^
