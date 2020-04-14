@@ -11,7 +11,7 @@ Usage
 -----
 MiTepid_sim: A repository to simulate the spread of COVID19. 
 
-This code simulates a set of nonlinear ODEs which can simulate the spread of a virus in any population with a known age structure, using both SIR and SIS models. The parameters of this model are estimated based on the available data on the spread of COVID-19. The details of that method, which relies on an optimisation scheme, are explained in the manuscript. The optimisation itself is done using the GLobal Optimisation Toolbox in Matlab. But the optimised values of the model parameters are uploaded with this code. Hence the code should work well under Python 3. There is a script coming with the code called ``script_main.py`` which can be used as a template for how to run the code, and demonctrstaes its capabilities. 
+This code simulates a set of nonlinear ODEs which can simulate the spread of a virus in any population with a known age structure, using both SIR and SIS models. The parameters of this model are estimated based on the available data on the spread of COVID-19. The details of that method, which relies on an optimisation scheme, are explained in `this manuscript <http://people.tuebingen.mpg.de/vbokharaie/pdf_files/Quantifying_COVID19_Containment_Policies.pdf>`_. The optimisation itself is done using the GLobal Optimisation Toolbox in Matlab. But the optimised values of the model parameters are uploaded with this code. Hence the code should work well under Python 3. There is a script coming with the code called ``script_main.py`` which can be used as a template for how to run the code, and demonctrstaes its capabilities. 
 
 Updates on the model and how it can be used to predict the spread of COVID-19 can be found in:
 https://people.tuebingen.mpg.de/vbokharaie/ 
