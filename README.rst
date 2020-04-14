@@ -24,20 +24,7 @@ In your command prompt or bash, simply type:
 
     pip install mitepid
 
-If you are using Anaconda on Windows, better to open an Anaconda command prompt
-and then type the above.
-
-Or if you want to work with the latest beta-release, you can find it in:
-
-https://gitlab.tuebingen.mpg.de/vbokharaie/mitfat
-
-
-    **If you don't know anything about Python:**
-
-    then you should not worry. In order to use this code, you do not need to know anything about python. You just need to install it and then follow the instructions in the Usage Section to be able to run the code. But you need to install Python first. Python is just a programming language and unlike Matlab is not owned by a company or organization, hence you do not need to bu a license to use it. There are various ways to install Python, but the easiest is to go `here <https://docs.conda.io/en/latest/miniconda.html>`_ and install Miniconda Python 3.x (3.7 at the time of writing). This will install Python and a minimal set of commonly used libraries (Libraries in Python are equivalent to toolboxes in Matlab). A little detail to keep in mind for Windows users is that you need to open an Anaconda Prompt (which you can find in your Start menu) and then type ``pip install mitepid`` to install the MitfAT library. Typing it in a normal windows command prompt (which you can open by typing ``cmd`` in 'Search program or file' in Start menu) might not work properly.
-
-    When Python is installed, then follow the instructions below to use this code to analyse your fMRI data. I should add though, that I sincerely hope using this code can motivate you to learn a bit about Python. I learned how to use Matlab 20 years ago and still use it to this day. But as I learn more about Python and what is available in this ecosystem, I use Matlab less and Python more and more every day. Python provides powerful tools for you that you did not know you are missing when you were writing programs in Matlab. If you want to learn the basics of Python, I can suggest this `online book <https://jakevdp.github.io/PythonDataScienceHandbook/>`_ to start with.
-
+Or you can install it from repo if you want to have the latest (untested) updates. 
 
 Basic Usage
 -----------
