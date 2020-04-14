@@ -175,6 +175,8 @@ def bplot(t,
     if not if_show:
         plt.close('all')
     if if_save:
+        dir_save = filesave.parent
+        dir_save.mkdir(exist_ok=True, parents=True)
         fig.savefig(filesave, dpi=100)
         filesave_pdf = filesave.with_suffix(".pdf")
         fig.savefig(filesave_pdf, dpi=300, filetype='pdf', quality=100)
