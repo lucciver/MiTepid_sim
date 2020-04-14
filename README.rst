@@ -1,6 +1,9 @@
 MiTepid_sim
 ===========
 
+.. image:: https://img.shields.io/pypi/v/mitepid.svg
+    :target: https://pypi.python.org/pypi/mitepid
+    :alt: Latest PyPI version
 .. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
    :target: https://www.gnu.org/licenses/gpl-3.0
 
