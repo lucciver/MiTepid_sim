@@ -65,6 +65,9 @@ def bplot(t,
     None.
 
     """
+    import matplotlib
+    # Force matplotlib to not use any Xwindows backend.
+    matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     import matplotlib.pylab as pl
     import matplotlib as mpl
