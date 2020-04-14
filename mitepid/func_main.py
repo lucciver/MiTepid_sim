@@ -58,7 +58,7 @@ def main(country,
 
     print('***************************************************')
     # assuming data files are where the .py file is:
-    dir_source_mat = Path(Path(__file__).resolve().parent.parent)
+    dir_source_mat = Path(Path(__file__).resolve().parent)
     file_data_opt_SIR = Path(dir_source_mat, 'Optimised_B', 'SIR_B_opt_normalised.mat')
     file_data_opt_SIS = Path(dir_source_mat, 'Optimised_B', 'SIS_B_opt_normalised.mat')
 
