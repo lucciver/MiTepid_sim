@@ -74,6 +74,12 @@ For a list of defined policies or how to define new ones, check the ``policies.p
  .. code-block:: bash
 
     #%% Switching between Uncontained, policy that enforces R0 = 1.0 and total Lockdown
+    from mitepid.func_main import main
+
+    from pathlib import Path
+    subfolder = Path('sample_outputs')
+    dir_save_plots_main = Path(Path.cwd(), subfolder)
+    
     country = 'Germany'
     t_end = 541
     list_t_switch = [0, 90, 120, 150, 180, 210, 240, 270, 300, 330,]
