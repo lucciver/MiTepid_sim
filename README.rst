@@ -38,8 +38,39 @@ https://gitlab.tuebingen.mpg.de/vbokharaie/mitfat
 
 Basic Usage
 -----------
+In the following code, it is assumed that CVODI-19 has a spread of 1 in 10,000 in all age groups in Germany. The disease spreads uncontained for 60 days and then various containment policies are imposed and the resulting plots for each case saved under ``sample_outputs`` subfolder in current working directory. 
 
-To understand what the code does, please look at `this manuscript <http://people.tuebingen.mpg.de/vbokharaie/pdf_files/Quantifying_COVID19_Containment_Policies.pdf>`_. 
+ .. code-block:: bash
+
+    from mitepid.func_main import main
+
+    from pathlib import Path
+    subfolder = Path('sample_outputs')
+    dir_save_plots_main = Path(Path.cwd(), subfolder)
+    country = 'Germany'
+    t_end = 541
+    list_t_switch = [0, 60]
+    policy_list = ['Uncontained',
+                   'Schools_closed',
+                   'Elderly_self_isolate',
+                   'Kids_Elderly_self_isolate',
+                   'Schools_Offices_closed',
+                   'Adults_Elderly_Self_isolate',
+                   'Social_Distancing',
+                   'Lockdown',
+                   ]
+
+    for policy in policy_list:
+        all_policies = ['Uncontained',]
+        all_policies.append(policy)
+        policy_definition = dict(zip(list_t_switch, all_policies))
+        x00 = 1e-4  # initial condition
+        x0_vec=[x00, x00, x00, x00, x00, x00, x00, x00, x00,]
+        policy_name = 'Uncontained_then_' + policy
+        print('*********************************************')
+        print(policy_name)
+        dict_current = main(country, policy_name, policy_definition,
+                            dir_save_plots_main, t_end=t_end, x0_vec=x0_vec)
 
 
 Requirements
