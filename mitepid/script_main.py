@@ -214,8 +214,8 @@ if __name__ == '__main__':
     dir_save_plots_country = Path(dir_save_plots_main, country)
     dir_save_plots = Path(dir_save_plots_country, '00_OVERALL')
     dir_save_plots.mkdir(exist_ok=True, parents=True)
-    filesave_I = Path(dir_save_plots, 'SIR_I_AGG_ALL_policies_IRAN.png')
-    filesave_R = Path(dir_save_plots, 'SIR_R_AGG_ALL_policies_IRAN.png')
+    filesave_I = Path(dir_save_plots, 'SIR_I_AGG_ALL_policies' + country +'.png')
+    filesave_R = Path(dir_save_plots, 'SIR_R_AGG_ALL_policies' + country +'.png')
 
     # plot aggregate plots to compare all policies.
     from plots import bplot_agg
