@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.
 # -*- coding: utf-8 -*-
 """
-Created on Sun May 24 11:25:16 2020
+Created on Sun May 24 11:25:16 2020.
 
 @author: vbokharaie
 """
@@ -37,7 +37,51 @@ class epid_sim:
                  ref_class=None,
                  xternal_inputs={},
                  ):
+        """
+        Initilise the class.
 
+        Class epidsim includes all the info on the epidemilogical model and policies.
+
+        Parameters
+        ----------
+        model_type : str
+            'SIS', 'SIR' or 'SEIR'.
+        dir_save_plots_main : pathlib
+            parent folder to save all plots.
+        country : str
+            one of the countries whose population density is defined in policies module.
+        policy_list : list of str
+            list of policies to be applied at each time step in policy_switch_times.
+        policy_switch_times : list of float
+            switching instances.
+        x0 : list of float
+            initial conditon for the model. Can be of length 1, Ng, or multiple of Ng.
+        t_end : float
+            final time for simulation.
+        str_policy : str
+            a strong used to create the subfolder.
+        group_labels : list of str
+            lables for each of Ng groups.
+        B : numpy array
+            matrix of contact rates.
+        Gamma : numpy array, optional
+            diagonal matrix of recovery rates for each groups.
+        Mu : numpy array, optional
+            diagonal matrix of recovery rates for each group.
+        Sigma : numpy array, optional
+            diagonal matrix of inhibition rates for each group.
+        t_step : float, optional
+            simulation time-step. The default is 0.1.
+        ref_class : epid_sim class, optional
+            used to generate reference diagrams in each plot. The default is None.
+        xternal_inputs : dictionary of x0 type.
+            in case there is external input in each swithcing instance.
+
+        Returns
+        -------
+        None.
+
+        """
         import numpy as np
         from pathlib import Path
 
@@ -80,6 +124,27 @@ class epid_sim:
 
 
     def calc_sol(self, ):
+        """
+        epid_calss method.
+
+        calculates the solution for the model given the parameters, switchin times, etc.
+        results saved in self.sol_dict and self.sol_agg_dict
+
+
+
+        Parameters
+        ----------
+        None.
+
+
+        Returns
+        -------
+        self.sol_dict: dict, keys are 'I', 'R', 'E', etc, values are numpy array (Nt x Ng)
+            a dictionary inlcuding solutions for each group and each compartment
+        self.sol_agg_dict: dict, keys are 'I', 'R', 'E', etc, values are numpy array (Nt x 1)
+            a dictionary inlcuding aggregate solution for each compartment
+
+        """
         from pathlib import Path
         import numpy as np
         from numpy.linalg import inv, eigvals
@@ -87,8 +152,8 @@ class epid_sim:
 
         from mitepid.utils import sort_out_t_policy_x0
         from mitepid.models import SIS, SIR, SEIR
-        from mitepid.utils import sol_aggregate, load_mat
-        from mitepid.policies import get_B_policy, str_policy_info, get_pop_distr
+        from mitepid.utils import sol_aggregate
+        from mitepid.policies import get_B_policy, get_pop_distr
 
         list_t1, list_t2, list_policies, list_x0, list_t_switch, list_all_policies = \
                     sort_out_t_policy_x0(self.policy_definition,
@@ -96,21 +161,25 @@ class epid_sim:
                                          self.t_end,
                                          self.Ng)
         file_policy = Path(self.dir_save_plots, 'policy_details.txt')
-
+        print('*************************************************************')
+        print('time (days)   --->  policy (R0 of policy)')
+        print('---------------------------------------------')
         x0_step = self.x0
         for idx in np.arange(len(list_t1)):
             t_switch1 = list_t1[idx]
             t_switch2 =  list_t2[idx]
             policy = list_policies[idx]
             x0_xtrnal = list_x0[idx]
-            with open(file_policy, 'a') as my_tex:
-                my_tex.write('\n %10.1f    --->  %s'%(t_switch1, policy))  # remove previous contents
             B_step = get_B_policy(B=self.B, country=self.country,
-                                  policy=policy, )
+                      policy=policy, )
+
+            rho = np.max(np.abs(eigvals(np.matmul(-inv(self.D), B_step))))  # spectral radius
+
+            with open(file_policy, 'a') as my_tex:
+                my_tex.write('\n %10.1f    --->  %s (R0 = %2.2f)'%(t_switch1, policy, rho))
 
             #%% R_0 policy
-            rho = np.max(np.abs(eigvals(np.matmul(-inv(self.D), B_step))))  # spectral radius of -inv(D)*B
-            print('%s   ---> R_0 = %2.2f'% (policy, rho))
+            print('%10.1f    --->  %s (R0 = %2.2f)'%(t_switch1, policy, rho))
 
             t_step = np.arange(t_switch1, t_switch2, step=0.1)
             x0_xtrnal = self.correct_x0(x0_xtrnal)
@@ -158,6 +227,29 @@ class epid_sim:
     #################################################################################################
     #%%
     def correct_x0(self, x0):
+        """
+        Correct the size of vextor x0, initial conditions.
+
+        if length of x0 is 1, it will set initial conditoin for all groups in compartment 'I' to 0
+            and 0 for other compartments.
+        if length of x0 is Ng, it will set it as the initial conditoin for compartment 'I'
+            and 0 for other compartments.
+        if length of x0 is equal total number of states (for example 2*Ng for SIR), then it sets
+            it as initial condition.
+        else raises an error.
+
+
+        Parameters
+        ----------
+        x0 : list of float
+            input list of initial conditoins.
+
+        Returns
+        -------
+        x0 : list of float
+            initial consitions with corrected length.
+
+        """
         import numpy as np
         model_type = self.model_type
         Ng = self.Ng
@@ -189,51 +281,121 @@ class epid_sim:
                 raise('Something wrong with initial conditions vector!')
         return x0
 
-    def plot(self, suptitle = '', multi_ax=False, cmap='viridis'):
-        from mitepid.plots import bplot
+    #%%
+    def plot_strat(self, suptitle = '', cmap='viridis'):
+        """
+        Plot solution to each individual group, all in one figure.
+
+        Parameters
+        ----------
+        suptitle : str, optional
+            main title for the plot. The default is ''.
+        cmap : matplotlib.cm cmap, optional
+            color map to use for the plot. The default is 'viridis'.
+
+        Returns
+        -------
+        None.
+
+        """
+        from mitepid.plots import bplot_strat
         from pathlib import Path
         import numpy as np
 
-        if multi_ax:
-            plot_type=1
-            str_multi = '_multi_ax'
-        else:
-            plot_type=2
-            str_multi = ''
         for key in self.sol_dict.keys():
-
             if not self.ref_class is None:
-                sol_plot = np.concatenate((self.sol_dict[key],
-                                           self.ref_class.sol_dict[key]), axis=1)
+                sol_plot = np.concatenate((self.ref_class.sol_dict[key],
+                                           self.sol_dict[key]), axis=1)
             else:
                 sol_plot = self.sol_dict[key]
-            str_file_name = self.model_type + '_' + key + '_groups' + str_multi
+            str_file_name = self.model_type + '_' + key + '_groups'
             filesave = Path(self.dir_save_plots, str_file_name + '_' +
                             self.str_policy+'_tf_'+str(int(self.t_end))+'.png')
-            bplot(self.t,
-                  sol_plot,
-                  plot_type=plot_type,
-                  filesave=filesave,
-                  labels=self.group_labels,
-                  suptitle=suptitle,
-                  list_vl=self.policy_switch_times,
-                  list_all_policies=self.policy_list,
-                  ylabel=key,
-                  Ng=self.Ng,
-                  cmap=cmap)
+            bplot_strat(self.t,
+                      sol_plot,
+                      Ng=self.Ng,
+                      filesave=filesave,
+                      labels=self.group_labels,
+                      suptitle=suptitle,
+                      list_vl=self.policy_switch_times,
+                      list_all_policies=self.policy_list,
+                      ylabel=key,
+                      cmap=cmap)
+    #%%
+    def plot_strat_multiax(self, suptitle = '', cmap='Dark2'):
+        """
+        Plot solution to each individual group, each in a different subtitle.
 
-    def plot2(self, suptitle = 'standard', multi_ax=False, cmap='viridis'):
+        Parameters
+        ----------
+        suptitle : str, optional
+            mian title. The default is ''.
+        cmap : matplotlib.cm cmap, optional
+            color map to use for the plot. The default is 'viridis'.
+
+        Returns
+        -------
+        None.
+
+        """
+        from mitepid.plots import bplot_strat_multiax
+        from pathlib import Path
+
+        for key in self.sol_dict.keys():
+            if not self.ref_class is None:
+                sol_plot = [self.ref_class.sol_dict[key], self.sol_dict[key], ]
+                plot_labels = ['Uncontained',
+                               'policy',
+                               ]
+
+            else:
+                sol_plot = [self.sol_dict[key]]
+                plot_labels = ['']
+            str_file_name = self.model_type + '_' + key + '_groups_multiax'
+            filesave = Path(self.dir_save_plots, str_file_name + '_' +
+                            self.str_policy+'_tf_'+str(int(self.t_end))+'.png')
+            suptitle = 'Compartment ' + key
+            bplot_strat_multiax(self.t,
+                                sol_plot,
+                                Ng=self.Ng,
+                                filesave=filesave,
+                                labels=plot_labels,
+                                ylabels=self.group_labels,
+                                suptitle=suptitle,
+                                list_vl=self.policy_switch_times,
+                                list_all_policies=self.policy_list,
+                                ylabel=key,
+                                cmap=cmap)
+
+    #%%
+    def plot_agg(self, suptitle = 'standard', cmap='viridis'):
+        """
+        Plot tha ggregate solution for each compartment.
+
+        Parameters
+        ----------
+        suptitle : str, optional
+            main title. The default is 'standard'.
+        cmap : matplotlib.cm cmap, optional
+            color map to use for the plot. The default is 'viridis'.
+
+        Returns
+        -------
+        None.
+
+        """
         from pathlib import Path
         import numpy as np
-        from mitepid.plots import bplot
+        from mitepid.plots import bplot_agg
         for key in self.sol_dict.keys():
 
             if not self.ref_class is None:
-                sol_plot = np.concatenate((self.sol_agg_dict[key],
-                                           self.ref_class.sol_agg_dict[key]), axis=1)
+                sol_plot = np.concatenate((self.ref_class.sol_agg_dict[key],
+                                          self.sol_agg_dict[key]), axis=1)
                 str2 = ", {:2.2f}".format(np.max(self.ref_class.sol_agg_dict[key])*100)+ '%'
-                plot_labels = ['policy',
-                               'Uncontained',]
+                plot_labels = ['Uncontained',
+                               'policy',
+                               ]
             else:
                 sol_plot = self.sol_agg_dict[key]
                 str2 = ''
@@ -249,15 +411,15 @@ class epid_sim:
                     + str1 + str2
             else:
                 suptitle_text = suptitle
-            bplot(self.t,
-                  sol_plot,
-                  plot_type=1,
-                  filesave=filesave,
-                  suptitle=suptitle_text,
-                  labels=plot_labels,
-                  list_vl=self.policy_switch_times,
-                  list_all_policies=self.policy_list,
-                  ylabel='Compartment '+key,
-                  cmap='Dark2')
+            bplot_agg(self.t,
+                      sol_plot,
+                      Ng=self.Ng,
+                      filesave=filesave,
+                      suptitle=suptitle_text,
+                      labels=plot_labels,
+                      list_vl=self.policy_switch_times,
+                      list_all_policies=self.policy_list,
+                      ylabel='Compartment '+key,
+                      cmap='Dark2')
 
 
